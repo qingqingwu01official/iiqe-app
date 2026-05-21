@@ -7,7 +7,7 @@ import DifficultyBadge, { SevereBanner } from '../components/DifficultyBadge'
 import type { ErrorReason } from '../types'
 
 const OPTION_KEYS = ['A', 'B', 'C', 'D'] as const
-const ERROR_REASONS: ErrorReason[] = ['概念混淆', '审题失误', '记忆错误', '其他']
+const ERROR_REASONS: ErrorReason[] = ['概念混淆', '审题失误', '记忆错误', '计算错误', '其他']
 const IMPORTANCE_ORDER = ['重中之重', '次重点', '一般重点', '补充考点']
 
 type Phase = 'answering' | 'result' | 'done'
