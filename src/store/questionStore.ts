@@ -3,7 +3,11 @@ import { persist } from 'zustand/middleware'
 import type { Question, DifficultyLevel } from '../types'
 import { chapter1Questions } from '../data/chapter1'
 
-// 动态计算难度等级
+/**
+ * 根据累计正确率实时计算难度等级。
+ * 阈值设计依据：≤60% 是考生普遍卡壳的分水岭（严重难点），
+ * >90% 视为已稳定掌握。每次答题后调用，驱动难点复习页的分层展示。
+ */
 function calcDifficulty(correctRate: number): DifficultyLevel {
   if (correctRate <= 0.60) return '严重难点'
   if (correctRate <= 0.70) return '一般难点'
@@ -39,7 +43,8 @@ export const useQuestionStore = create<QuestionState>()(
         if (!q) return false
         const isCorrect = selected === q.answer
 
-        // 更新正确率（简单移动平均）
+        // 正确率更新：答对 +5%，答错 -8%（非对称设计：犯错惩罚大于奖励，
+        // 避免靠运气刷分掩盖真实薄弱点）
         set(state => ({
           sessionAnswers: { ...state.sessionAnswers, [questionId]: selected },
           sessionResults: { ...state.sessionResults, [questionId]: isCorrect },

@@ -40,15 +40,17 @@ export const useProgressStore = create<ProgressState>()(
         const { records } = get()
         if (records.length === 0) return 0
 
+        // 准备度 = 覆盖率(60%) + 近期正确率(40%)
+        // 覆盖率：只统计重中之重+次重点，因为它们占考试得分约75%，
+        //         其他考点不刷也不会大幅影响通过率。
         const criticalQuestions = chapter1Questions.filter(
           q => q.importance === '重中之重' || q.importance === '次重点'
         )
         const attemptedIds = new Set(records.map(r => r.questionId))
         const attemptedCritical = criticalQuestions.filter(q => attemptedIds.has(q.id))
-
         const coverageRate = attemptedCritical.length / criticalQuestions.length
 
-        // 最近20条记录的正确率
+        // 近期正确率：取最近20条，反映当前真实水平而非历史累计
         const recent = records.slice(-20)
         const recentAccuracy = recent.length > 0
           ? recent.filter(r => r.isCorrect).length / recent.length
@@ -58,10 +60,12 @@ export const useProgressStore = create<ProgressState>()(
       },
 
       getErrorQuestions: () => {
+        // 错题判定规则：以"最近一次作答"为准。
+        // 按时间倒序扫描：先碰到"答对"→移出错题本；先碰到"答错"→加入错题本。
+        // 这样"上次答对"的题不会出现在错题本，避免已掌握题目反复打扰复习节奏。
         const { records } = get()
         const errorSet = new Set<string>()
         const correctSet = new Set<string>()
-        // 最近记录：如果最近一次答对了就不算错题了
         const sorted = [...records].sort((a, b) => b.timestamp - a.timestamp)
         sorted.forEach(r => {
           if (!correctSet.has(r.questionId) && !r.isCorrect) {
