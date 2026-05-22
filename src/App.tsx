@@ -1,24 +1,40 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
-import MapPage      from './pages/MapPage'
-import QuizPage     from './pages/QuizPage'
-import ReviewPage   from './pages/ReviewPage'
-import ProgressPage from './pages/ProgressPage'
+import HomePage from './pages/HomePage'
+import FoundationPage from './pages/FoundationPage'
+import SprintPage from './pages/SprintPage'
+import QuizPage from './pages/QuizPage'
 import AnalysisPage from './pages/AnalysisPage'
+import GridPage from './pages/GridPage'
+import ErrorBookPage from './pages/ErrorBookPage'
+import MePage from './pages/MePage'
+
+const BOTTOM_NAV_PATHS = ['/', '/grid', '/errors', '/me']
+
+function AppRoutes() {
+  const { pathname } = useLocation()
+  const showNav = BOTTOM_NAV_PATHS.includes(pathname)
+  return (
+    <>
+      <Routes>
+        <Route path="/"             element={<HomePage />} />
+        <Route path="/foundation"   element={<FoundationPage />} />
+        <Route path="/sprint"       element={<SprintPage />} />
+        <Route path="/quiz"         element={<QuizPage />} />
+        <Route path="/analysis/:id" element={<AnalysisPage />} />
+        <Route path="/grid"         element={<GridPage />} />
+        <Route path="/errors"       element={<ErrorBookPage />} />
+        <Route path="/me"           element={<MePage />} />
+      </Routes>
+      {showNav && <BottomNav />}
+    </>
+  )
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="pb-16">
-        <Routes>
-          <Route path="/"          element={<MapPage />} />
-          <Route path="/quiz"      element={<QuizPage />} />
-          <Route path="/review"    element={<ReviewPage />} />
-          <Route path="/progress"  element={<ProgressPage />} />
-          <Route path="/analysis"  element={<AnalysisPage />} />
-        </Routes>
-      </div>
-      <BottomNav />
+      <AppRoutes />
     </BrowserRouter>
   )
 }
